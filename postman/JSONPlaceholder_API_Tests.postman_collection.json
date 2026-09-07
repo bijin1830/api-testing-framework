@@ -1,0 +1,103 @@
+{
+  "info": {
+    "_postman_id": "31a77ec5-5a35-4e5e-bfe3-6fb8c16fc9a4",
+    "name": "JSONPlaceholder API Tests",
+    "description": "Portfolio demo collection for REST API testing using Postman and Newman. Uses only public demo data.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get single post",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/1",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "1"]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('Response is JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+            "pm.test('Post id is 1', function () { pm.expect(pm.response.json().id).to.eql(1); });",
+            "pm.test('Required fields exist', function () { var b = pm.response.json(); pm.expect(b).to.have.keys('userId','id','title','body'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Filter posts by userId",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts?userId=1",
+          "host": ["{{base_url}}"],
+          "path": ["posts"],
+          "query": [{"key":"userId","value":"1"}]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('Response contains records', function () { pm.expect(pm.response.json().length).to.be.above(0); });",
+            "pm.test('All records belong to user 1', function () { pm.response.json().forEach(function (p) { pm.expect(p.userId).to.eql(1); }); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Create post",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"QA portfolio test\",\n  \"body\": \"Created from Postman/Newman demo collection\",\n  \"userId\": 1\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/posts",
+          "host": ["{{base_url}}"],
+          "path": ["posts"]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+            "pm.test('Submitted title is returned', function () { pm.expect(pm.response.json().title).to.eql('QA portfolio test'); });",
+            "pm.test('Created response contains id', function () { pm.expect(pm.response.json()).to.have.property('id'); });"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Missing post returns 404",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/999999",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "999999"]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });",
+            "pm.test('Response time is acceptable for demo API', function () { pm.expect(pm.response.responseTime).to.be.below(3000); });"
+          ]
+        }
+      }]
+    }
+  ]
+}
