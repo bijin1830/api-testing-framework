@@ -1,7 +1,4 @@
-.venv/
-__pycache__/
-*.pyc
-.pytest_cache/
+node_modules/
 reports/
 .env
 .idea/
