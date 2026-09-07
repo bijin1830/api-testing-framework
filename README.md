@@ -1,44 +1,39 @@
-# API Testing Framework
+# API Testing Showcase
 
 [![API Tests](https://github.com/bijin1830/api-testing-framework/actions/workflows/api-tests.yml/badge.svg)](https://github.com/bijin1830/api-testing-framework/actions/workflows/api-tests.yml)
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
-![Pytest](https://img.shields.io/badge/Pytest-Automation-0A9EDC?logo=pytest&logoColor=white)
-![Requests](https://img.shields.io/badge/Requests-HTTP-20232A)
-![JSON Schema](https://img.shields.io/badge/JSON%20Schema-Validation-000000)
+![Postman](https://img.shields.io/badge/Postman-API%20Testing-FF6C37?logo=postman&logoColor=white)
+![Newman](https://img.shields.io/badge/Newman-CLI%20Runner-6B4FBB)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI-2088FF?logo=githubactions&logoColor=white)
 
-A portfolio-grade **REST API automation framework** built with Python, `pytest`, `requests`, and JSON Schema validation.
+A practical **REST API testing showcase using Postman and Newman**.
 
-The project demonstrates reusable API-client design, positive and negative testing, contract/schema validation, environment configuration, parametrized tests, CI execution, and HTML reporting.
+This project is designed to reflect my real hands-on QA experience more accurately: validating API responses, status codes, request/response data, positive and negative scenarios, environment variables and repeatable test execution.
 
-> This repository uses only public demo APIs and synthetic test data. It contains no employer, bank, merchant, customer, card, production, or confidential information.
+> This repository uses only a public demo API and synthetic test data. It contains no employer, bank, merchant, card, production or confidential information.
 
 ## What this project demonstrates
 
 - REST API functional testing
+- Postman collections and environments
 - HTTP status-code validation
-- JSON response/body validation
-- JSON Schema contract testing
-- Header and content-type validation
+- JSON response validation
+- Header/content-type checks
 - Positive and negative scenarios
 - Query-parameter validation
-- Parametrized test execution
-- Reusable request client
-- Environment-based configuration
-- `pytest` markers for smoke / regression / negative tests
-- Automatic HTML report generation
-- GitHub Actions CI on every push and pull request
+- Basic response-time validation
+- Running Postman tests using Newman
+- GitHub Actions CI for repeatable execution
+- Test-result artifact generation
 
 ## Test target
 
-The framework uses the public [JSONPlaceholder](https://jsonplaceholder.typicode.com/) API as a safe demo service.
+The collection uses the public [JSONPlaceholder](https://jsonplaceholder.typicode.com/) demo API.
 
 Default base URL:
 
 ```text
 https://jsonplaceholder.typicode.com
 ```
-
-You can override it with the `BASE_URL` environment variable.
 
 ## Project structure
 
@@ -47,123 +42,72 @@ api-testing-framework/
 ├── .github/
 │   └── workflows/
 │       └── api-tests.yml
-├── src/
-│   ├── __init__.py
-│   ├── api_client.py
-│   └── schemas.py
-├── tests/
-│   ├── conftest.py
-│   ├── test_posts.py
-│   ├── test_users.py
-│   └── test_negative.py
+├── postman/
+│   ├── JSONPlaceholder_API_Tests.postman_collection.json
+│   └── Demo.postman_environment.json
+├── package.json
 ├── .gitignore
-├── pytest.ini
-├── requirements.txt
 └── README.md
 ```
 
-## Setup
+## Covered scenarios
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/bijin1830/api-testing-framework.git
-cd api-testing-framework
-```
-
-### 2. Create a virtual environment
-
-Windows:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-macOS / Linux:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-## Run the tests
-
-Run the full suite:
-
-```bash
-pytest
-```
-
-Run smoke tests:
-
-```bash
-pytest -m smoke
-```
-
-Run negative tests:
-
-```bash
-pytest -m negative
-```
-
-Generate an HTML report:
-
-```bash
-pytest --html=reports/api-test-report.html --self-contained-html
-```
-
-## Example coverage
-
-| Area | Example validation |
+| Scenario | Validation |
 |---|---|
-| GET collection | `GET /posts` returns a non-empty list |
-| GET single resource | `GET /posts/1` returns the expected resource |
-| Filtering | `GET /posts?userId=1` returns only matching records |
-| Create | `POST /posts` returns `201` and echoes submitted data |
-| Contract | Post/User responses match JSON Schema |
-| Headers | JSON content type is returned |
-| Negative | Missing resources return `404` |
-| Data quality | Required fields are present and correctly typed |
+| Get single post | 200 status, JSON content type, expected id and required fields |
+| Filter by userId | 200 status, non-empty response, all rows match the filter |
+| Create post | 201 status, submitted title returned, response contains id |
+| Missing post | 404 status and basic response-time check |
 
-## Design approach
+## Run in Postman
 
-The tests do not call `requests` directly everywhere. HTTP behavior is wrapped by `ApiClient`, keeping request logic reusable and test code readable.
+1. Import `postman/JSONPlaceholder_API_Tests.postman_collection.json`
+2. Import `postman/Demo.postman_environment.json`
+3. Select the **Demo** environment
+4. Run the collection using Postman Collection Runner
 
-```python
-response = api_client.get("/posts/1")
-assert response.status_code == 200
+## Run with Newman
+
+Install dependencies:
+
+```bash
+npm install
 ```
 
-Schema definitions are also centralized so contract checks can be reused across many tests.
+Run the collection:
 
-## CI/CD
+```bash
+npm run test:api
+```
 
-GitHub Actions automatically:
+The command runs the same Postman tests from the command line and writes a JUnit-style result file under `reports/`.
+
+## GitHub Actions
+
+The workflow automatically:
 
 1. Checks out the repository
-2. Installs Python
-3. Installs dependencies
-4. Runs the full API test suite
-5. Generates an HTML test report
-6. Uploads the report as a workflow artifact
+2. Sets up Node.js
+3. Installs Newman
+4. Runs the Postman collection
+5. Uploads the test-result report as an artifact
 
-This makes test results visible directly from the **Actions** tab of the repository.
+This demonstrates how a manual/API tester can make repeatable API checks part of a CI workflow without presenting the project as advanced software-development experience.
+
+## My experience level
+
+My strongest API testing experience is with **Postman, REST validation, integration testing and production/UAT troubleshooting**.
+
+I am also learning automation concepts. Python and Selenium are currently at a **beginner/basic level**, so this repository intentionally focuses on tools and workflows I can confidently explain in an interview.
 
 ## QA skills represented
 
-`API Testing` · `REST` · `Python` · `Pytest` · `Requests` · `JSON Schema` · `Functional Testing` · `Negative Testing` · `Regression Testing` · `Test Automation` · `CI/CD` · `GitHub Actions`
+`Postman` · `Newman` · `REST API Testing` · `Functional Testing` · `Negative Testing` · `Integration Testing` · `Response Validation` · `Environment Variables` · `GitHub Actions`
 
 ## Author
 
 **Bijin Benni**  
-Software Test Engineer | QA Automation | Payments & POS Systems
+Software Test Engineer | Payments & POS Systems | API Testing
 
 - Portfolio: https://bijin1830.github.io
 - LinkedIn: https://www.linkedin.com/in/bijinbenni
