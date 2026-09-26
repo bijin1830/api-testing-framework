@@ -2,64 +2,69 @@
   "info": {
     "_postman_id": "31a77ec5-5a35-4e5e-bfe3-6fb8c16fc9a4",
     "name": "JSONPlaceholder API Tests",
-    "description": "Portfolio demo collection for REST API testing using Postman and Newman. Uses only public demo data.",
+    "description": "Portfolio REST API test suite using Postman/Newman. Public demo API and synthetic data only.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Get single post",
+      "name": "GET - Single post",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/posts/1",
+          "raw": "{{base_url}}/posts/{{post_id}}",
           "host": ["{{base_url}}"],
-          "path": ["posts", "1"]
+          "path": ["posts", "{{post_id}}"]
         }
       },
       "event": [{
         "listen": "test",
         "script": {
           "exec": [
-            "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-            "pm.test('Response is JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
-            "pm.test('Post id is 1', function () { pm.expect(pm.response.json().id).to.eql(1); });",
-            "pm.test('Required fields exist', function () { var b = pm.response.json(); pm.expect(b).to.have.keys('userId','id','title','body'); });"
+            "const body = pm.response.json();",
+            "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+            "pm.test('Response is JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+            "pm.test('Post id matches request', () => pm.expect(body.id).to.eql(Number(pm.environment.get('post_id'))));",
+            "pm.test('Required fields and types are valid', () => { pm.expect(body).to.have.all.keys('userId','id','title','body'); pm.expect(body.userId).to.be.a('number'); pm.expect(body.title).to.be.a('string'); });",
+            "pm.test('Response time is within limit', () => pm.expect(pm.response.responseTime).to.be.below(Number(pm.environment.get('response_time_limit_ms'))));"
           ]
         }
       }]
     },
     {
-      "name": "Filter posts by userId",
+      "name": "GET - Filter posts by userId",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/posts?userId=1",
+          "raw": "{{base_url}}/posts?userId={{user_id}}",
           "host": ["{{base_url}}"],
           "path": ["posts"],
-          "query": [{"key":"userId","value":"1"}]
+          "query": [{"key":"userId","value":"{{user_id}}"}]
         }
       },
       "event": [{
         "listen": "test",
         "script": {
           "exec": [
-            "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
-            "pm.test('Response contains records', function () { pm.expect(pm.response.json().length).to.be.above(0); });",
-            "pm.test('All records belong to user 1', function () { pm.response.json().forEach(function (p) { pm.expect(p.userId).to.eql(1); }); });"
+            "const body = pm.response.json();",
+            "const userId = Number(pm.environment.get('user_id'));",
+            "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+            "pm.test('Response is an array', () => pm.expect(body).to.be.an('array'));",
+            "pm.test('Response contains records', () => pm.expect(body.length).to.be.above(0));",
+            "pm.test('All records match userId filter', () => body.forEach(p => pm.expect(p.userId).to.eql(userId)));"
           ]
         }
       }]
     },
     {
-      "name": "Create post",
+      "name": "POST - Create post",
       "request": {
         "method": "POST",
         "header": [{"key":"Content-Type","value":"application/json"}],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"title\": \"QA portfolio test\",\n  \"body\": \"Created from Postman/Newman demo collection\",\n  \"userId\": 1\n}"
+          "raw": "{\n  \"title\": \"QA portfolio test\",\n  \"body\": \"Created from Postman/Newman demo collection\",\n  \"userId\": {{user_id}}\n}"
         },
         "url": {
           "raw": "{{base_url}}/posts",
@@ -71,30 +76,104 @@
         "listen": "test",
         "script": {
           "exec": [
-            "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
-            "pm.test('Submitted title is returned', function () { pm.expect(pm.response.json().title).to.eql('QA portfolio test'); });",
-            "pm.test('Created response contains id', function () { pm.expect(pm.response.json()).to.have.property('id'); });"
+            "const body = pm.response.json();",
+            "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+            "pm.test('Submitted title is returned', () => pm.expect(body.title).to.eql('QA portfolio test'));",
+            "pm.test('Created response contains id', () => pm.expect(body).to.have.property('id'));",
+            "pm.test('userId is preserved', () => pm.expect(body.userId).to.eql(Number(pm.environment.get('user_id'))));"
           ]
         }
       }]
     },
     {
-      "name": "Missing post returns 404",
+      "name": "PUT - Replace post",
       "request": {
-        "method": "GET",
-        "header": [],
+        "method": "PUT",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": {{post_id}},\n  \"title\": \"Updated QA test\",\n  \"body\": \"Full update validation\",\n  \"userId\": {{user_id}}\n}"
+        },
         "url": {
-          "raw": "{{base_url}}/posts/999999",
+          "raw": "{{base_url}}/posts/{{post_id}}",
           "host": ["{{base_url}}"],
-          "path": ["posts", "999999"]
+          "path": ["posts", "{{post_id}}"]
         }
       },
       "event": [{
         "listen": "test",
         "script": {
           "exec": [
-            "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });",
-            "pm.test('Response time is acceptable for demo API', function () { pm.expect(pm.response.responseTime).to.be.below(3000); });"
+            "const body = pm.response.json();",
+            "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+            "pm.test('Updated title is returned', () => pm.expect(body.title).to.eql('Updated QA test'));",
+            "pm.test('Post id remains unchanged', () => pm.expect(body.id).to.eql(Number(pm.environment.get('post_id'))));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "PATCH - Partial post update",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\n  \"title\": \"Partially updated QA test\"\n}"},
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "{{post_id}}"]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const body = pm.response.json();",
+            "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+            "pm.test('Patched title is returned', () => pm.expect(body.title).to.eql('Partially updated QA test'));",
+            "pm.test('Post id remains unchanged', () => pm.expect(body.id).to.eql(Number(pm.environment.get('post_id'))));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "DELETE - Delete post",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "{{post_id}}"]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+            "pm.test('Delete response is valid JSON object', () => pm.expect(pm.response.json()).to.be.an('object'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "NEGATIVE - Missing post returns 404",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/{{invalid_post_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "{{invalid_post_id}}"]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Status code is 404', () => pm.response.to.have.status(404));",
+            "pm.test('Response time is within limit', () => pm.expect(pm.response.responseTime).to.be.below(Number(pm.environment.get('response_time_limit_ms'))));"
           ]
         }
       }]
