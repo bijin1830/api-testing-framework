@@ -1,12 +1,14 @@
 {
   "name": "api-testing-framework",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "Postman and Newman API testing showcase",
+  "description": "Postman and Newman REST API testing portfolio with CI reporting",
   "scripts": {
-    "test:api": "newman run postman/JSONPlaceholder_API_Tests.postman_collection.json -e postman/Demo.postman_environment.json --reporters cli,junit --reporter-junit-export reports/newman-results.xml"
+    "test:api": "newman run postman/JSONPlaceholder_API_Tests.postman_collection.json -e postman/Demo.postman_environment.json --reporters cli,junit --reporter-junit-export reports/newman-results.xml",
+    "test:api:html": "newman run postman/JSONPlaceholder_API_Tests.postman_collection.json -e postman/Demo.postman_environment.json --reporters cli,htmlextra --reporter-htmlextra-export reports/newman-report.html"
   },
   "devDependencies": {
-    "newman": "^6.2.1"
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1"
   }
 }
