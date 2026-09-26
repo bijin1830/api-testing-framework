@@ -1,39 +1,40 @@
-# API Testing Showcase
+# API Testing Framework
 
 [![API Tests](https://github.com/bijin1830/api-testing-framework/actions/workflows/api-tests.yml/badge.svg)](https://github.com/bijin1830/api-testing-framework/actions/workflows/api-tests.yml)
 ![Postman](https://img.shields.io/badge/Postman-API%20Testing-FF6C37?logo=postman&logoColor=white)
 ![Newman](https://img.shields.io/badge/Newman-CLI%20Runner-6B4FBB)
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI-2088FF?logo=githubactions&logoColor=white)
 
-A practical **REST API testing showcase using Postman and Newman**.
+A practical REST API testing portfolio built with **Postman, Newman and GitHub Actions**.
 
-This project is designed to reflect my real hands-on QA experience more accurately: validating API responses, status codes, request/response data, positive and negative scenarios, environment variables and repeatable test execution.
+The project demonstrates the type of validation used in real QA work: functional checks, negative scenarios, request/response validation, environment-driven execution, response-time checks and repeatable CI test runs.
 
-> This repository uses only a public demo API and synthetic test data. It contains no employer, bank, merchant, card, production or confidential information.
+> The repository uses only public demo APIs and synthetic data. It contains no employer, bank, merchant, cardholder, production or confidential information.
 
-## What this project demonstrates
+## Highlights
 
-- REST API functional testing
-- Postman collections and environments
-- HTTP status-code validation
-- JSON response validation
+- GET, POST, PUT, PATCH and DELETE coverage
+- Positive and negative API scenarios
+- Status-code validation
+- JSON field and data-type validation
 - Header/content-type checks
-- Positive and negative scenarios
 - Query-parameter validation
-- Basic response-time validation
-- Running Postman tests using Newman
-- GitHub Actions CI for repeatable execution
-- Test-result artifact generation
+- Environment variables for reusable execution
+- Response-time threshold validation
+- Newman command-line execution
+- JUnit and HTML test reports
+- GitHub Actions CI
+- Payment-domain test design examples
 
 ## Test target
 
-The collection uses the public [JSONPlaceholder](https://jsonplaceholder.typicode.com/) demo API.
-
-Default base URL:
+The executable collection uses the public JSONPlaceholder API:
 
 ```text
 https://jsonplaceholder.typicode.com
 ```
+
+JSONPlaceholder simulates writes rather than permanently storing them, which makes it suitable for a safe portfolio test suite.
 
 ## Project structure
 
@@ -42,6 +43,8 @@ api-testing-framework/
 ├── .github/
 │   └── workflows/
 │       └── api-tests.yml
+├── docs/
+│   └── payment-api-test-scenarios.md
 ├── postman/
 │   ├── JSONPlaceholder_API_Tests.postman_collection.json
 │   └── Demo.postman_environment.json
@@ -50,23 +53,29 @@ api-testing-framework/
 └── README.md
 ```
 
-## Covered scenarios
+## Covered executable scenarios
 
-| Scenario | Validation |
+| Method | Scenario | Key validations |
+|---|---|---|
+| GET | Get single post | 200, JSON content type, ID, required fields, types, response time |
+| GET | Filter by userId | 200, array response, non-empty result, filter correctness |
+| POST | Create post | 201, echoed request data, generated ID |
+| PUT | Replace post | 200, updated values, ID consistency |
+| PATCH | Partial update | 200, patched field, ID consistency |
+| DELETE | Delete post | 200, valid JSON response |
+| GET | Missing resource | 404, response-time threshold |
+
+## Environment variables
+
+| Variable | Purpose |
 |---|---|
-| Get single post | 200 status, JSON content type, expected id and required fields |
-| Filter by userId | 200 status, non-empty response, all rows match the filter |
-| Create post | 201 status, submitted title returned, response contains id |
-| Missing post | 404 status and basic response-time check |
+| `base_url` | API endpoint |
+| `post_id` | Valid resource ID |
+| `user_id` | Query/body test value |
+| `invalid_post_id` | Negative-test resource ID |
+| `response_time_limit_ms` | Performance threshold |
 
-## Run in Postman
-
-1. Import `postman/JSONPlaceholder_API_Tests.postman_collection.json`
-2. Import `postman/Demo.postman_environment.json`
-3. Select the **Demo** environment
-4. Run the collection using Postman Collection Runner
-
-## Run with Newman
+## Run locally
 
 Install dependencies:
 
@@ -74,35 +83,52 @@ Install dependencies:
 npm install
 ```
 
-Run the collection:
+Run CLI + JUnit reporting:
 
 ```bash
 npm run test:api
 ```
 
-The command runs the same Postman tests from the command line and writes a JUnit-style result file under `reports/`.
+Run CLI + HTML reporting:
+
+```bash
+npm run test:api:html
+```
+
+Reports are written under `reports/`.
 
 ## GitHub Actions
 
-The workflow automatically:
+The workflow runs automatically for pushes and pull requests to `main`.
+
+It:
 
 1. Checks out the repository
-2. Sets up Node.js
-3. Installs Newman
-4. Runs the Postman collection
-5. Uploads the test-result report as an artifact
+2. Sets up Node.js 20
+3. Installs dependencies
+4. Executes the Newman suite
+5. Generates JUnit and HTML reports
+6. Uploads the reports as workflow artifacts
 
-This demonstrates how a manual/API tester can make repeatable API checks part of a CI workflow without presenting the project as advanced software-development experience.
+## Payment-domain test design
 
-## My experience level
+The executable suite intentionally stays on a public API. A separate synthetic scenario document demonstrates how I approach payment API testing, including:
 
-My strongest API testing experience is with **Postman, REST validation, integration testing and production/UAT troubleshooting**.
+- Sale approval and decline
+- Duplicate transaction handling
+- Timeout and reversal
+- Refund
+- Settlement
+- Invalid amount/currency
+- Idempotency
+- Authentication/authorization
+- Response-code mapping
 
-I am also learning automation concepts. Python and Selenium are currently at a **beginner/basic level**, so this repository intentionally focuses on tools and workflows I can confidently explain in an interview.
+See `docs/payment-api-test-scenarios.md`.
 
 ## QA skills represented
 
-`Postman` · `Newman` · `REST API Testing` · `Functional Testing` · `Negative Testing` · `Integration Testing` · `Response Validation` · `Environment Variables` · `GitHub Actions`
+`Postman` · `Newman` · `REST API Testing` · `Functional Testing` · `Negative Testing` · `Integration Testing` · `Response Validation` · `Environment Variables` · `CI/CD` · `GitHub Actions` · `Payments QA`
 
 ## Author
 
